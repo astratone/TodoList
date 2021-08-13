@@ -14,3 +14,4 @@ DAO (Data Access Object): são as interfaces utilizadas para acessar os dados ar
 Database: Representação da classe abstrata do Banco de Dados.
 
 Apliquei também como melhoria um pequeno ajuste no ícone de retorno na toolbar da Activity de adicionar tarefa.
+Diante da aplicação da Room é possível manter os dados após fechar o app e editar e salvar as alterações das tarefas.
