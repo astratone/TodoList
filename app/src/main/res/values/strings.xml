@@ -11,5 +11,6 @@
     <string name="label_edit">Editar</string>
     <string name="label_delete">Delete</string>
     <string name="label_dont_have_tasks">Ops! Você não possui \nnenhuma tarfa.</string>
+    <string name="label_task_success">Tarefa adicionada.</string>
 
 </resources>

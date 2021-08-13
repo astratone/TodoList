@@ -1,13 +1,15 @@
 package br.com.dio.todolist.ui
 
+
 import android.app.Activity
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import br.com.dio.todolist.App
 import br.com.dio.todolist.databinding.ActivityAddTaskBinding
-import br.com.dio.todolist.datasource.TaskDataSource
 import br.com.dio.todolist.extensions.format
 import br.com.dio.todolist.extensions.text
-import br.com.dio.todolist.model.Task
+import br.com.dio.todolist.data.Task
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
@@ -15,25 +17,53 @@ import java.util.*
 
 class AddTaskActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityAddTaskBinding
+
+    private val binding by lazy { ActivityAddTaskBinding.inflate(layoutInflater) }
+
+    private val mainViewModel: MainViewModel by viewModels {
+        MainViewModelFactory((application as App).repository)
+    }
+
+    private lateinit var task: Task
+    private var createTask = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        binding = ActivityAddTaskBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if (intent.hasExtra(TASK_ID)) {
-            val taskId = intent.getIntExtra(TASK_ID, 0)
-            TaskDataSource.findById(taskId)?.let {
-                binding.tilTitle.text = it.title
-                binding.tilDate.text = it.date
-                binding.tilHour.text = it.hour
+        fun editingTask(task: Task) {
+            binding.apply {
+                binding.tilTitle.text = task.title
+                binding.tilDate.text = task.date
+                binding.tilHour.text = task.hour
+                binding.tilDescription.text = task.description
             }
         }
 
+        if (intent.hasExtra(TASK_ID)) {
+            val taskId = intent.getIntExtra(TASK_ID, 0)
+            mainViewModel.loadTaskById(taskId).observe(this, { selectedItem ->
+                task = selectedItem!!
+                editingTask(task)
+
+
+            })
+
+        } else {
+            createTask = true
+        }
+
+
         insertListeners()
+        iconNavigate()
     }
+
+    private fun iconNavigate() {
+        binding.toolbar.setOnClickListener {
+            finish()
+        }
+    }
+
 
     private fun insertListeners() {
         binding.tilDate.editText?.setOnClickListener {
@@ -53,7 +83,8 @@ class AddTaskActivity : AppCompatActivity() {
                 .build()
 
             timePicker.addOnPositiveButtonClickListener {
-                val minute = if (timePicker.minute in 0..9) "0${timePicker.minute}" else timePicker.minute
+                val minute =
+                    if (timePicker.minute in 0..9) "0${timePicker.minute}" else timePicker.minute
                 val hour = if (timePicker.hour in 0..9) "0${timePicker.hour}" else timePicker.hour
 
                 binding.tilHour.text = "$hour:$minute"
@@ -67,14 +98,34 @@ class AddTaskActivity : AppCompatActivity() {
         }
 
         binding.btnNewTask.setOnClickListener {
-            val task = Task(
-                title = binding.tilTitle.text,
-                date = binding.tilDate.text,
-                hour = binding.tilHour.text,
-                id = intent.getIntExtra(TASK_ID, 0)
-            )
-            TaskDataSource.insertTask(task)
-            setResult(Activity.RESULT_OK)
+
+            if (createTask) {
+                mainViewModel.addTask(
+                    title = binding.tilTitle.text,
+                    date = binding.tilDate.text,
+                    description = binding.tilHour.text,
+                    hour = binding.tilDescription.text,
+                    id = intent.getIntExtra(TASK_ID, 0)
+
+
+                    )
+
+               // mainViewModel.insert(task)
+                setResult(Activity.RESULT_OK)
+
+            } else {
+                mainViewModel.update(task,
+                    binding.tilTitle.text,
+                    binding.tilDescription.text,
+                    binding.tilDate.text,
+                    binding.tilHour.text,
+
+                )
+
+               // mainViewModel.updateItemTask(task)
+                setResult(Activity.RESULT_OK)
+            }
+
             finish()
         }
     }
@@ -82,6 +133,7 @@ class AddTaskActivity : AppCompatActivity() {
 
     companion object {
         const val TASK_ID = "task_id"
+
     }
 
 }

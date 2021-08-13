@@ -12,6 +12,7 @@
         app:navigationIcon="@drawable/ic_navigate"
         app:title="@string/label_new_task" />
 
+
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guide_start"
         android:layout_width="wrap_content"
