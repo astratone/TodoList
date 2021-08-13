@@ -108,21 +108,22 @@ class AddTaskActivity : AppCompatActivity() {
                     id = intent.getIntExtra(TASK_ID, 0)
 
 
-                    )
+                )
 
-               // mainViewModel.insert(task)
+
                 setResult(Activity.RESULT_OK)
 
             } else {
-                mainViewModel.update(task,
+                mainViewModel.update(
+                    task,
                     binding.tilTitle.text,
                     binding.tilDescription.text,
                     binding.tilDate.text,
                     binding.tilHour.text,
 
-                )
+                    )
 
-               // mainViewModel.updateItemTask(task)
+
                 setResult(Activity.RESULT_OK)
             }
 
